@@ -76,6 +76,29 @@ exports.likeDislikeSauce = (req, res, next) => {
                 .then(() => res.status(200).json({ message: 'Dislike ajouté !' }))
                 .catch(error => res.status(400).json({ error }));
             }
-        })
-        .catch(error => res.status(400).json({ error }));
+            //Cas ou l'utilisateur retire son like ou son dislike
+            if (req.body.like == 0) {
+                //Cas ou l'utilisateur retire son like
+                const userLike = sauce.usersLiked.indexOf(req.body.userId);
+                if (userLike == 1) {
+                    sauce.usersLiked.slice(userLike, 1);
+                    Sauce.updateOne(
+                        { _id: req.params.id },
+                        {$inc: { likes: -1 }, $push: { usersLiked: {$each: [], $slice: userLike}},}
+                    )
+                    .then(() => res.status(200).json({ message: 'Like annulé' }))
+                    .catch(error => res.status(400).json({ error }));
+                } else if (userLike == -1) {
+                    // Cas ou l'utilisateur retire son dislike
+                    const userDislike = sauce.usersDisliked.indexOf(req.body.userId);
+                    sauce.usersDisliked.slice(userDislike, 1);
+                    Sauce.updateOne(
+                        { _id: req.params.id },
+                        {$inc: { dislikes: -1 }, $push: { usersDisliked: {$each: [], $slice: userDislike }},}
+                    )
+                    .then(() => res.status(200).json({ message: 'Dislike annulé' }))
+                    .catch(error => res.status(400).json({ error }));
+                }
+            }
+        });
 }
