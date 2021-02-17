@@ -35,6 +35,12 @@ exports.modifySauce = (req, res, next) => {
       ...JSON.parse(req.body.sauce),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`  
     } : { ...req.body};
+    if (req.file) {
+        Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+            const name = sauce.imageUrl.split('/images/')[1]
+            fs.unlinkSync(`images/${name}`)
+          })
+    }
     Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
         .catch(error => res.status(400).json({ error }));
