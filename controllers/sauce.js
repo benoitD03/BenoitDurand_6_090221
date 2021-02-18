@@ -86,7 +86,7 @@ exports.likeDislikeSauce = (req, res, next) => {
             if (req.body.like == 0) {
                 //Cas ou l'utilisateur retire son like
                 const userLike = sauce.usersLiked.indexOf(req.body.userId);
-                if (userLike == 1) {
+                if (userLike > -1) {
                     sauce.usersLiked.slice(userLike, 1);
                     Sauce.updateOne(
                         { _id: req.params.id },
